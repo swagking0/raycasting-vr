@@ -11,7 +11,9 @@ public class RayController : MonoBehaviour
     RaycastHit hit;
     Vector3 hitpoint;
     float distance;
-    string ray_cond;
+    bool ray_cond = false;
+    public static string objectname;
+
 
     private SteamVR_TrackedObject trackedObj;
     public SteamVR_Controller.Device controller { get { return SteamVR_Controller.Input((int)trackedObj.index); } }
@@ -33,11 +35,9 @@ public class RayController : MonoBehaviour
     private bool Touch_pad_Press = false;
     //private bool Touch_pad_PressDown = false;
     //added work
-    public bool displayplayer;
-    public bool displayplayer_1;
 
     public bool t_press;
-    public string touchpad_switch_condition = "false";
+    //public string touchpad_switch_condition = "false";
 
 
 
@@ -45,8 +45,10 @@ public class RayController : MonoBehaviour
     void Start()
     {
         // trackedObj = GetComponent<SteamVR_TrackedObject>();
+        objectname = "null";
         ray = GameObject.FindWithTag("ray");
         ray.GetComponent<Renderer>().enabled = false;
+
 
     }
 
@@ -86,45 +88,27 @@ public class RayController : MonoBehaviour
                 {
                     Debug.Log("Attach False");
                     hit.transform.parent = null;
-                    //hit.transform.position = gameObject.transform.localPosition;
                 }
+                if (objectname == "null")
+                {
+                    objectname = hit.collider.tag;
+                    Debug.Log(objectname);
+
+                }
+  
 
             }
-            if (hit.transform.gameObject.CompareTag("box_example_1"))
+            
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("supermarket"))
             {
-                displayplayer = true;
+                Debug.Log("Hello");
+                ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
+                ray.transform.localPosition = new Vector3(0, 0, 50);
+                objectname = "null";
+                
             }
-            else if (hit.transform.gameObject.CompareTag("box_example_2"))
-            {
-                displayplayer_1 = true;
+
             }
-
-        }
-        else
-        {
-            ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
-            ray.transform.localPosition = new Vector3(0, 0, 50);
-            displayplayer = false;
-            displayplayer_1 = false;
-        }
-
-
-        //for showing clone in other script
-        Touch_pad_Press = controller.GetPress(touchpad);
-        //Touch_pad_PressDown = controller.GetPressDown(touchpad);
-
-        if (Touch_pad_Press && touchpad_switch_condition == "true")
-        {
-            t_press = true;
-            touchpad_switch_condition = "false";
-            Debug.Log(touchpad_switch_condition);
-        }
-        if (Touch_pad_Press && touchpad_switch_condition == "false")
-        {
-            t_press = false;
-            touchpad_switch_condition = "true";
-            Debug.Log(touchpad_switch_condition);
-        }
     }
 
     //key press method
@@ -158,14 +142,14 @@ public class RayController : MonoBehaviour
 
         if (gripButtonPressed)
         {
-            Debug.Log("Trigger Button Down is pressed!");
+            Debug.Log("Grip Button Down is pressed!");
             ray.GetComponent<Renderer>().enabled = !ray.GetComponent<Renderer>().enabled;
             ray.transform.parent = trackedObj.transform;
             ray.transform.position = trackedObj.transform.position;
             ray.transform.localRotation = Quaternion.Euler(Vector3.zero);
             ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
             ray.transform.localPosition = new Vector3(0, 0, 50);
-            ray_cond = "true";
+            ray_cond = !ray_cond;
             //ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, hit.distance);
         }
         /*if (triggerButtonUp)

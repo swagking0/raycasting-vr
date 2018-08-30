@@ -35,8 +35,8 @@ public class RayController1 : MonoBehaviour
 
 
     //added work
-    public bool displayplayer;
-    public bool displayplayer_1;
+    //public bool displayplayer;
+    //public bool displayplayer_1;
 
     public bool t_press;
     //public string touchpad_switch_condition = "false";
@@ -73,6 +73,7 @@ public class RayController1 : MonoBehaviour
                 distance = Vector3.Distance(trackedObj.transform.position, hitpoint);
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, distance);
                 ray.transform.localPosition = new Vector3(0, 0, distance / 2f);
+                ray_material.color = Color.green;
 
                 if (cond == "true")
                 {
@@ -84,7 +85,7 @@ public class RayController1 : MonoBehaviour
                     distance = Vector3.Distance(trackedObj.transform.position, hitpoint);
                     ray.transform.localScale = new Vector3 (ray.transform.localScale.x, ray.transform.localScale.y, distance);
                     ray.transform.localPosition = new Vector3(0, 0, distance / 2f);*/
-                    ray_material.color = Color.green;
+                    //ray_material.color = Color.green;
                 }
 
                 if (cond == "false")
@@ -92,26 +93,30 @@ public class RayController1 : MonoBehaviour
                     Debug.Log("Attach False");
                     hit.transform.parent = null;
                     //hit.transform.position = gameObject.transform.localPosition;
-                    ray_material.color = Color.red;
+                    //ray_material.color = Color.red;
                 }
 
             }
-            if (hit.transform.gameObject.CompareTag("box_example_1"))
-            {
-                displayplayer = true;
-            }
-            else if (hit.transform.gameObject.CompareTag("box_example_2"))
-            {
-                displayplayer_1 = true;
-            }
+            //else {
+                //ray_material.color = Color.red;
+            //}
+            //if (hit.transform.gameObject.CompareTag("box_example_1"))
+            //{
+                //displayplayer = true;
+            //}
+            //else if (hit.transform.gameObject.CompareTag("box_example_2"))
+            //{
+                //displayplayer_1 = true;
+            //}
 
         }
         else
         {
             ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
             ray.transform.localPosition = new Vector3(0, 0, 50);
-            displayplayer = false;
-            displayplayer_1 = false;
+            ray_material.color = Color.red;
+            //displayplayer = false;
+            //displayplayer_1 = false;
         }
 
 
