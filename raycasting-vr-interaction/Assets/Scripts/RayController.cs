@@ -12,7 +12,11 @@ public class RayController : MonoBehaviour
     Vector3 hitpoint;
     float distance;
     bool ray_cond = false;
+    bool instantiation = false;
+    bool isrotating = false; 
     public static string objectname;
+    private GameObject ObjectGetter, ObjectHolder;
+    public GameObject spawmPointer;
 
 
     private SteamVR_TrackedObject trackedObj;
@@ -24,39 +28,31 @@ public class RayController : MonoBehaviour
     public bool gripButtonUp = false;
     public bool gripButtonPressed = false;
 
-
     private Valve.VR.EVRButtonId triggerButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
     public bool triggerButtonDown = false;
     public bool triggerButtonUp = false;
     public bool triggerButtonPressed = false;
 
-    //controller_input
     private Valve.VR.EVRButtonId touchpad = Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad;
-    private bool Touch_pad_Press = false;
-    //private bool Touch_pad_PressDown = false;
-    //added work
+    private bool Touch_pad_PressUp = false;
+    private bool Touch_pad_PressDown = false;
 
-    public bool t_press;
-    //public string touchpad_switch_condition = "false";
-
+    
 
 
     // Use this for initialization
     void Start()
     {
-        // trackedObj = GetComponent<SteamVR_TrackedObject>();
-        objectname = "null";
+        objectname = " ";
         ray = GameObject.FindWithTag("ray");
         ray.GetComponent<Renderer>().enabled = false;
 
 
     }
-
     void Awake()
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
     }
-
 
     // Update is called once per frame
     void Update()
@@ -71,10 +67,15 @@ public class RayController : MonoBehaviour
                 distance = Vector3.Distance(trackedObj.transform.position, hitpoint);
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, distance);
                 ray.transform.localPosition = new Vector3(0, 0, distance / 2f);
-
+                ObjectGetter = hit.collider.gameObject;
+                instantiation = true;
+                clone(ObjectGetter, instantiation);
+                if (isrotating)
+                {
+                    ObjectHolder.transform.Rotate(new Vector3(0,0, -0.5f));
+                }
                 if (cond == "true")
                 {
-                    Debug.Log(" Attach True ");
                     Quaternion rotation = hit.transform.localRotation;
                     Vector3 scale = hit.transform.localScale;
                     hit.transform.SetParent(ray.transform.parent, true);
@@ -86,25 +87,26 @@ public class RayController : MonoBehaviour
 
                 if (cond == "false")
                 {
-                    Debug.Log("Attach False");
-                    hit.transform.parent = null;
+                     hit.transform.parent = null;
                 }
-                if (objectname == "null")
+                if (objectname == " ")
                 {
                     objectname = hit.collider.tag;
-                    Debug.Log(objectname);
-
                 }
   
 
             }
+            else
+            {
+                instantiation = false;
+                clone(ObjectGetter, instantiation);
+            }
             
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("supermarket"))
             {
-                Debug.Log("Hello");
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
                 ray.transform.localPosition = new Vector3(0, 0, 50);
-                objectname = "null";
+                objectname = " ";
                 
             }
 
@@ -114,11 +116,8 @@ public class RayController : MonoBehaviour
     //key press method
     public string onCall()
     {
-        //gripButtonDown = controller.GetPressDown(gripButton);
-        //gripButtonUp = controller.GetPressUp(gripButton);
-        //gripButtonPressed = controller.GetPress(gripButton);
-        triggerButtonDown = controller.GetPressDown(triggerButton);
-        triggerButtonUp = controller.GetPressUp(triggerButton);
+       triggerButtonDown = controller.GetPressDown(triggerButton);
+       triggerButtonUp = controller.GetPressUp(triggerButton);
 
         if (triggerButtonDown)
         {
@@ -135,14 +134,9 @@ public class RayController : MonoBehaviour
     //show laser method
     private void ShowLaser()
     {
-        //triggerButtonDown = controller.GetPressDown(triggerButton);
-        //triggerButtonUp = controller.GetPressUp(triggerButton);
         gripButtonPressed = controller.GetPress(gripButton);
-        //Touch_pad_Press = controller.GetPress(touchpad);
-
         if (gripButtonPressed)
         {
-            Debug.Log("Grip Button Down is pressed!");
             ray.GetComponent<Renderer>().enabled = !ray.GetComponent<Renderer>().enabled;
             ray.transform.parent = trackedObj.transform;
             ray.transform.position = trackedObj.transform.position;
@@ -150,13 +144,36 @@ public class RayController : MonoBehaviour
             ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
             ray.transform.localPosition = new Vector3(0, 0, 50);
             ray_cond = !ray_cond;
-            //ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, hit.distance);
         }
-        /*if (triggerButtonUp)
+      
+
+    }
+ 
+
+
+    //block for cloning the object
+    void clone(GameObject obj, bool condition)
+    {
+        Debug.Log(condition);
+        Touch_pad_PressUp = controller.GetPressUp(touchpad);
+        Touch_pad_PressDown = controller.GetPressDown(touchpad);
+        Debug.Log("Touchpad is pressed down = " + Touch_pad_PressDown);
+        if (Touch_pad_PressDown && condition)
         {
-            Debug.Log("Trigger Button UP is pressed!");
-            ray.GetComponent<Renderer>().enabled = false;
-        }*/
+            ObjectHolder = Instantiate(obj);
+            ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
+            ObjectHolder.transform.position = spawmPointer.transform.position;
+            isrotating = true; 
+        }
+        if (Touch_pad_PressUp)
+        {
+            isrotating = false;
+            Destroy(ObjectHolder);
+        }
+        else if (!condition)
+        {
+            Destroy(ObjectHolder);
+        }
 
     }
 

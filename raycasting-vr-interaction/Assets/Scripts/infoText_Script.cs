@@ -17,7 +17,7 @@ public class infoText_Script : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         infoText.text = stringInfo;
-        infoText.color = Color.black;
+        infoText.color = Color.red;
 		
 	}
 }
