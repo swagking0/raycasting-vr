@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR.InteractionSystem;
+using System.Text.RegularExpressions;
 
 public class RayController : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class RayController : MonoBehaviour
     bool isrotating = false; 
     public static string objectname;
     private GameObject ObjectGetter, ObjectHolder;
+    Vector3 SizeGetter;
     public GameObject spawmPointer;
 
 
@@ -68,8 +70,17 @@ public class RayController : MonoBehaviour
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, distance);
                 ray.transform.localPosition = new Vector3(0, 0, distance / 2f);
                 ObjectGetter = hit.collider.gameObject;
+                //float intme = GetSize.in_x;
+                //Debug.Log(intme);
+                //SizeGetter = hit.collider.gameObject.GetComponent<Renderer>().bounds.size;
+                SizeGetter = hit.collider.GetComponent<BoxCollider>().size;
+                //float intme = SizeGetter.y;
+                //Debug.Log(intme);
+                //Debug.Log(SizeGetter.x);
+                Debug.Log(SizeGetter.x.ToString());
+                //Debug.Log(SizeGetter.z);
                 instantiation = true;
-                clone(ObjectGetter, instantiation);
+                clone(ObjectGetter, instantiation, SizeGetter);
                 if (isrotating)
                 {
                     ObjectHolder.transform.Rotate(new Vector3(0,0, -0.5f));
@@ -99,7 +110,7 @@ public class RayController : MonoBehaviour
             else
             {
                 instantiation = false;
-                clone(ObjectGetter, instantiation);
+                clone(ObjectGetter, instantiation, SizeGetter);
             }
             
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("supermarket"))
@@ -152,18 +163,27 @@ public class RayController : MonoBehaviour
 
 
     //block for cloning the object
-    void clone(GameObject obj, bool condition)
+    void clone(GameObject obj, bool condition, Vector3 dimensions)
     {
-        Debug.Log(condition);
+        //Debug.Log(condition);
         Touch_pad_PressUp = controller.GetPressUp(touchpad);
         Touch_pad_PressDown = controller.GetPressDown(touchpad);
-        Debug.Log("Touchpad is pressed down = " + Touch_pad_PressDown);
-        if (Touch_pad_PressDown && condition)
+        //Debug.Log("Touchpad is pressed down = " + Touch_pad_PressDown);
+        string x_value = dimensions.x.ToString();
+        
+        if (Touch_pad_PressDown && condition && Regex.IsMatch(x_value, "^[0-9]\\.[0-9]*"))
         {
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
             isrotating = true; 
+        }
+        else if (Touch_pad_PressDown && condition && Regex.IsMatch(x_value, "^[0-9].\\.[0-9]*"))
+        {
+            ObjectHolder = Instantiate(obj);
+            ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
+            ObjectHolder.transform.position = spawmPointer.transform.position;
+            isrotating = true;
         }
         if (Touch_pad_PressUp)
         {
