@@ -13,8 +13,9 @@ public class RayController : MonoBehaviour
     Vector3 hitpoint;
     float distance;
     bool ray_cond = false;
-    bool instantiation = false;
-    bool isrotating = false; 
+    static bool instantiation = false;
+    bool killmyName;
+    bool isrotating, isattached = false; 
     public static string objectname;
     private GameObject ObjectGetter, ObjectHolder;
     Vector3 SizeGetter;
@@ -61,7 +62,7 @@ public class RayController : MonoBehaviour
     {
         ShowLaser();
         string cond = onCall();
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit))
+        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit) && ray_cond)
         {
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("interactive"))
             {
@@ -70,39 +71,33 @@ public class RayController : MonoBehaviour
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, distance);
                 ray.transform.localPosition = new Vector3(0, 0, distance / 2f);
                 ObjectGetter = hit.collider.gameObject;
-                //float intme = GetSize.in_x;
-                //Debug.Log(intme);
-                //SizeGetter = hit.collider.gameObject.GetComponent<Renderer>().bounds.size;
+                //Debug.Log(hit.collider.transform.parent.name);
                 SizeGetter = hit.collider.GetComponent<BoxCollider>().size;
-                //float intme = SizeGetter.y;
-                //Debug.Log(intme);
-                //Debug.Log(SizeGetter.x);
-                Debug.Log(SizeGetter.x.ToString());
-                //Debug.Log(SizeGetter.z);
                 instantiation = true;
                 clone(ObjectGetter, instantiation, SizeGetter);
                 if (isrotating)
                 {
                     ObjectHolder.transform.Rotate(new Vector3(0,0, -0.5f));
                 }
-                if (cond == "true")
+                if (cond == "true" && !isattached)
                 {
                     Quaternion rotation = hit.transform.localRotation;
-                    Vector3 scale = hit.transform.localScale;
                     hit.transform.SetParent(ray.transform.parent, true);
-                    /*hitpoint = hit.point;
-                    distance = Vector3.Distance(trackedObj.transform.position, hitpoint);
-                    ray.transform.localScale = new Vector3 (ray.transform.localScale.x, ray.transform.localScale.y, distance);
-                    ray.transform.localPosition = new Vector3(0, 0, distance / 2f);*/
+                    isattached = true;
                 }
 
                 if (cond == "false")
                 {
-                     hit.transform.parent = null;
+                    hit.transform.parent = null;
+                    isattached = false;
                 }
-                if (objectname == " ")
+                if (killmyName == false)
                 {
-                    objectname = hit.collider.tag;
+                    objectname = hit.collider.transform.parent.name;
+                }
+                if (killmyName == true)
+                {
+                    objectname = " ";
                 }
   
 
@@ -159,16 +154,12 @@ public class RayController : MonoBehaviour
       
 
     }
- 
-
 
     //block for cloning the object
     void clone(GameObject obj, bool condition, Vector3 dimensions)
     {
-        //Debug.Log(condition);
-        Touch_pad_PressUp = controller.GetPressUp(touchpad);
+       Touch_pad_PressUp = controller.GetPressUp(touchpad);
         Touch_pad_PressDown = controller.GetPressDown(touchpad);
-        //Debug.Log("Touchpad is pressed down = " + Touch_pad_PressDown);
         string x_value = dimensions.x.ToString();
         
         if (Touch_pad_PressDown && condition && Regex.IsMatch(x_value, "^[0-9]\\.[0-9]*"))
@@ -176,7 +167,8 @@ public class RayController : MonoBehaviour
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
-            isrotating = true; 
+            isrotating = true;
+            killmyName = true;
         }
         else if (Touch_pad_PressDown && condition && Regex.IsMatch(x_value, "^[0-9].\\.[0-9]*"))
         {
@@ -184,15 +176,18 @@ public class RayController : MonoBehaviour
             ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
             isrotating = true;
+            killmyName = true;
         }
         if (Touch_pad_PressUp)
         {
             isrotating = false;
             Destroy(ObjectHolder);
+            killmyName = false;
         }
         else if (!condition)
         {
             Destroy(ObjectHolder);
+            isrotating = false;
         }
 
     }
