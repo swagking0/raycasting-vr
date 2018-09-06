@@ -15,11 +15,12 @@ public class RayController : MonoBehaviour
     bool ray_cond = false;
     static bool instantiation = false;
     bool killmyName;
-    bool isrotating, isattached = false; 
-    public static string objectname;
-    private GameObject ObjectGetter, ObjectHolder;
+    bool isrotating, isattached, isupdating = false; 
+    public static string objectname, objectnameholder;
+    private GameObject ObjectGetter, ObjectHolder, box;
     Vector3 SizeGetter;
     public GameObject spawmPointer;
+    public Transform ParentBox;
 
 
     private SteamVR_TrackedObject trackedObj;
@@ -49,8 +50,6 @@ public class RayController : MonoBehaviour
         objectname = " ";
         ray = GameObject.FindWithTag("ray");
         ray.GetComponent<Renderer>().enabled = false;
-
-
     }
     void Awake()
     {
@@ -64,6 +63,7 @@ public class RayController : MonoBehaviour
         string cond = onCall();
         if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit) && ray_cond)
         {
+            
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("interactive"))
             {
                 hitpoint = hit.point;
@@ -71,10 +71,15 @@ public class RayController : MonoBehaviour
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, distance);
                 ray.transform.localPosition = new Vector3(0, 0, distance / 2f);
                 ObjectGetter = hit.collider.gameObject;
-                //Debug.Log(hit.collider.transform.parent.name);
                 SizeGetter = hit.collider.GetComponent<BoxCollider>().size;
                 instantiation = true;
                 clone(ObjectGetter, instantiation, SizeGetter);
+                if (!isupdating)
+                {
+                    ParentBox = ObjectGetter.transform.parent;
+                }
+
+
                 if (isrotating)
                 {
                     ObjectHolder.transform.Rotate(new Vector3(0,0, -0.5f));
@@ -84,22 +89,29 @@ public class RayController : MonoBehaviour
                     Quaternion rotation = hit.transform.localRotation;
                     hit.transform.SetParent(ray.transform.parent, true);
                     isattached = true;
-                }
+                    killmyName = true;
+                    isupdating = true;
 
-                if (cond == "false")
+
+                }
+                
+                if (cond == "false" && isattached)
                 {
                     hit.transform.parent = null;
+                    hit.transform.SetParent(ParentBox, true);
                     isattached = false;
+                    killmyName = false;
+                    isupdating = false;
                 }
                 if (killmyName == false)
                 {
-                    objectname = hit.collider.transform.parent.name;
+                    objectname = ParentBox.name;
                 }
                 if (killmyName == true)
                 {
+
                     objectname = " ";
                 }
-  
 
             }
             else
@@ -113,7 +125,6 @@ public class RayController : MonoBehaviour
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
                 ray.transform.localPosition = new Vector3(0, 0, 50);
                 objectname = " ";
-                
             }
 
             }
