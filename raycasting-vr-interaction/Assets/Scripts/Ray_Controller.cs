@@ -55,6 +55,7 @@ public class Ray_Controller : MonoBehaviour
         ray.GetComponent<Renderer>().enabled = false;
         ray_material = ray.GetComponent<Renderer>().material;
         clone_position = new Vector3(0, 0, 0);
+        spawmPointer.transform.SetParent(trackedObj.transform.parent, true);
     }
     void Awake()
     {
@@ -86,10 +87,12 @@ public class Ray_Controller : MonoBehaviour
                 }
 
 
-                if (isrotating)
+                if (Ray_Controller1.istouching)
                 {
-                    ObjectHolder.transform.Rotate(new Vector3(0,0, -0.5f));
-                    
+                    clone_rotation = Ray_Controller1.rotation;
+                    clone_position = Ray_Controller1.box_position;
+                    ObjectHolder.transform.Rotate(new Vector3(clone_rotation.x, clone_rotation.y, clone_rotation.z));
+                    ObjectHolder.transform.position = new Vector3(clone_position.x, clone_position.y, clone_position.z);
                 }
                 if (cond == "true" && !isattached)
                 {
@@ -187,8 +190,6 @@ public class Ray_Controller : MonoBehaviour
             ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
             clone_position1 = spawmPointer.transform.position;
-            clone_rotation = ObjectHolder.transform.rotation;
-            //Debug.Log(clone_position);
             boxEnabled1 = true;
             isrotating = true;
             killmyName = true;
@@ -199,8 +200,6 @@ public class Ray_Controller : MonoBehaviour
             ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
             clone_position1 = spawmPointer.transform.position;
-            //Debug.Log(clone_position);
-            clone_rotation = ObjectHolder.transform.rotation;
             boxEnabled1 = true;
             isrotating = true;
             killmyName = true;

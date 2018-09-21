@@ -11,7 +11,7 @@ public class nameUpdate_Script : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-         infoText_Script.stringInfo = RayController.objectname;
+         infoText_Script.stringInfo = Ray_Controller.objectname;
        
     }
 }
