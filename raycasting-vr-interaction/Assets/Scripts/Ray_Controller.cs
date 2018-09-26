@@ -24,10 +24,13 @@ public class Ray_Controller : MonoBehaviour
     public static bool boxEnabled1;
     public static Vector3 clone_position1;
     public static Quaternion clone_rotation;
+    bool instantiation = false;
 
 
     private SteamVR_TrackedObject trackedObj;
     public SteamVR_Controller.Device controller { get { return SteamVR_Controller.Input((int)trackedObj.index); } }
+
+    public SteamVR_Camera head;
 
     //variables for controller buttons
     private Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_Grip;
@@ -55,7 +58,6 @@ public class Ray_Controller : MonoBehaviour
         ray.GetComponent<Renderer>().enabled = false;
         ray_material = ray.GetComponent<Renderer>().material;
         clone_position = new Vector3(0, 0, 0);
-        spawmPointer.transform.SetParent(trackedObj.transform.parent, true);
     }
     void Awake()
     {
@@ -79,7 +81,8 @@ public class Ray_Controller : MonoBehaviour
                 ObjectGetter = hit.collider.gameObject;
                 SizeGetter = hit.collider.GetComponent<BoxCollider>().size;
                 ray_material.color = Color.green;
-                clone(ObjectGetter, SizeGetter);
+                instantiation = true;
+                clone(ObjectGetter, instantiation , SizeGetter);
 
                 if (!isupdating)
                 {
@@ -89,11 +92,12 @@ public class Ray_Controller : MonoBehaviour
 
                 if (Ray_Controller1.istouching)
                 {
-                    clone_rotation = Ray_Controller1.rotation;
-                    clone_position = Ray_Controller1.box_position;
+                    clone_rotation = Ray_Controller1.rotation1;
                     ObjectHolder.transform.Rotate(new Vector3(clone_rotation.x, clone_rotation.y, clone_rotation.z));
+                    clone_position = Ray_Controller1.box_position;
                     ObjectHolder.transform.position = new Vector3(clone_position.x, clone_position.y, clone_position.z);
                 }
+               
                 if (cond == "true" && !isattached)
                 {
                     Quaternion rotation = hit.transform.localRotation;
@@ -112,24 +116,36 @@ public class Ray_Controller : MonoBehaviour
                     killmyName = false;
                     isupdating = false;
                 }
-                if (killmyName == false)
+                if (!killmyName)
                 {
                     objectname = ParentBox.name;
                 }
-                if (killmyName == true)
+                if (killmyName)
                 {
 
                     objectname = " ";
                 }
-
             }
-            
+            else
+            {
+                instantiation = true;
+                clone(ObjectGetter, instantiation, SizeGetter);
+                if (Ray_Controller1.istouching)
+                {
+                    clone_rotation = Ray_Controller1.rotation1;
+                    ObjectHolder.transform.Rotate(new Vector3(clone_rotation.x, clone_rotation.y, clone_rotation.z));
+                    clone_position = Ray_Controller1.box_position;
+                    ObjectHolder.transform.position = new Vector3(clone_position.x, clone_position.y, clone_position.z);
+                }
+            }
+
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("supermarket"))
             {
                 ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
                 ray.transform.localPosition = new Vector3(0, 0, 50);
                 objectname = " ";
                 ray_material.color = Color.red;
+
             }
 
         }
@@ -138,7 +154,7 @@ public class Ray_Controller : MonoBehaviour
             ray.transform.localScale = new Vector3(ray.transform.localScale.x, ray.transform.localScale.y, 100);
             ray.transform.localPosition = new Vector3(0, 0, 50);
             ray_material.color = Color.red;
-        }
+         }
     }
 
     //key press method
@@ -178,13 +194,13 @@ public class Ray_Controller : MonoBehaviour
     }
 
     //block for cloning the object
-    void clone(GameObject obj, Vector3 dimensions)
+    void clone(GameObject obj, bool InstantObj , Vector3 dimensions)
     {
        Touch_pad_PressUp = controller.GetPressUp(touchpad);
-        Touch_pad_PressDown = controller.GetPressDown(touchpad);
-        string x_value = dimensions.x.ToString();
+       Touch_pad_PressDown = controller.GetPressDown(touchpad);
+       string x_value = dimensions.x.ToString();
         
-        if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9]\\.[0-9]*"))
+        if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9]\\.[0-9]*") && InstantObj)
         {
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
@@ -194,7 +210,7 @@ public class Ray_Controller : MonoBehaviour
             isrotating = true;
             killmyName = true;
         }
-        else if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9].\\.[0-9]*"))
+        else if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9].\\.[0-9]*") && InstantObj)
         {
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
@@ -211,9 +227,12 @@ public class Ray_Controller : MonoBehaviour
             Destroy(ObjectHolder);
             killmyName = false;
             boxEnabled = false;
+            InstantObj = false;
         }
-        
-
+       if (!InstantObj)
+        {
+            Destroy(ObjectHolder);
+        }
     }
 
 }
