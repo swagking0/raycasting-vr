@@ -30,8 +30,6 @@ public class Ray_Controller : MonoBehaviour
     private SteamVR_TrackedObject trackedObj;
     public SteamVR_Controller.Device controller { get { return SteamVR_Controller.Input((int)trackedObj.index); } }
 
-    public SteamVR_Camera head;
-
     //variables for controller buttons
     private Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_Grip;
     public bool gripButtonDown = false;
@@ -58,6 +56,7 @@ public class Ray_Controller : MonoBehaviour
         ray.GetComponent<Renderer>().enabled = false;
         ray_material = ray.GetComponent<Renderer>().material;
         clone_position = new Vector3(0, 0, 0);
+        
     }
     void Awake()
     {
@@ -205,6 +204,7 @@ public class Ray_Controller : MonoBehaviour
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
+            //ObjectHolder.transform.localRotation = new Quaternion(90, 90, 0, 0);
             clone_position1 = spawmPointer.transform.position;
             boxEnabled1 = true;
             isrotating = true;
@@ -215,6 +215,7 @@ public class Ray_Controller : MonoBehaviour
             ObjectHolder = Instantiate(obj);
             ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
+            //ObjectHolder.transform.localRotation = new Quaternion(90, 90, 0, 0);
             clone_position1 = spawmPointer.transform.position;
             boxEnabled1 = true;
             isrotating = true;
