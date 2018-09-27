@@ -26,9 +26,13 @@ public class Ray_Controller : MonoBehaviour
     public static Quaternion clone_rotation;
     bool instantiation = false;
 
+    private GameObject CameraEye, UIDisplay;
+    //private Quaternion HMDLocalRotation; //variable to store current position of HMD
+
 
     private SteamVR_TrackedObject trackedObj;
     public SteamVR_Controller.Device controller { get { return SteamVR_Controller.Input((int)trackedObj.index); } }
+    //public SteamVR_Camera steamCam; //calling the Steam VR camera here
 
     //variables for controller buttons
     private Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_Grip;
@@ -53,10 +57,11 @@ public class Ray_Controller : MonoBehaviour
     {
         objectname = " ";
         ray = GameObject.FindWithTag("ray");
+        UIDisplay = GameObject.Find("display");
+        CameraEye = GameObject.Find("Camera (eye)");
         ray.GetComponent<Renderer>().enabled = false;
         ray_material = ray.GetComponent<Renderer>().material;
         clone_position = new Vector3(0, 0, 0);
-        
     }
     void Awake()
     {
@@ -66,6 +71,8 @@ public class Ray_Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        spawmPointer.transform.position = new Vector3(0.82f , CameraEye.transform.position.y, -8.29f);
+        spawmPointer.transform.SetParent(UIDisplay.transform.parent, true);
         ShowLaser();
         string cond = onCall();
         if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit) && ray_cond)
@@ -202,9 +209,9 @@ public class Ray_Controller : MonoBehaviour
         if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9]\\.[0-9]*") && InstantObj)
         {
             ObjectHolder = Instantiate(obj);
-            ObjectHolder.transform.localScale = new Vector3(0.4f,0.4f,0.4f);
+            ObjectHolder.transform.localScale = new Vector3(0.3f,0.3f,0.3f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
-            //ObjectHolder.transform.localRotation = new Quaternion(90, 90, 0, 0);
+            ObjectHolder.transform.eulerAngles = new Vector3(270, -180, 360);
             clone_position1 = spawmPointer.transform.position;
             boxEnabled1 = true;
             isrotating = true;
@@ -213,9 +220,9 @@ public class Ray_Controller : MonoBehaviour
         else if (Touch_pad_PressDown && Regex.IsMatch(x_value, "^[0-9].\\.[0-9]*") && InstantObj)
         {
             ObjectHolder = Instantiate(obj);
-            ObjectHolder.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
+            ObjectHolder.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
             ObjectHolder.transform.position = spawmPointer.transform.position;
-            //ObjectHolder.transform.localRotation = new Quaternion(90, 90, 0, 0);
+            ObjectHolder.transform.eulerAngles = new Vector3(270, -180, 360);
             clone_position1 = spawmPointer.transform.position;
             boxEnabled1 = true;
             isrotating = true;
